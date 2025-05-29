@@ -71,7 +71,11 @@ export class ServerlessSaturdayStack extends cdk.Stack {
         entry: "services/lambda/sendOrders.ts",
         runtime: lambda.Runtime.NODEJS_22_X,
         environment: {
+          NODE_OPTIONS: "--enable-source-maps",
           EVENT_BUS_NAME: orderEventBus.eventBusName,
+        },
+        bundling: {
+          sourceMap: true,
         },
         tracing: lambda.Tracing.ACTIVE,
       }
@@ -87,6 +91,12 @@ export class ServerlessSaturdayStack extends cdk.Stack {
       {
         entry: "services/lambda/processOrders.ts",
         runtime: lambda.Runtime.NODEJS_22_X,
+        environment: {
+          NODE_OPTIONS: "--enable-source-maps",
+        },
+        bundling: {
+          sourceMap: true,
+        },
         tracing: lambda.Tracing.ACTIVE,
       }
     );

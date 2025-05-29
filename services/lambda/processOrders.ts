@@ -1,20 +1,28 @@
 import { EventBridgeEvent, SQSEvent, SQSBatchResponse } from "aws-lambda";
 import { OrderItem, Order } from "../types/orders";
+import { serializeError } from "serialize-error";
 
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: string[] = [];
 
   for (const record of event.Records) {
-    const messageBody: EventBridgeEvent<"order", Order> = JSON.parse(
-      record.body
-    );
-    const order = messageBody.detail;
-
     try {
+      const messageBody: EventBridgeEvent<"order", Order> = JSON.parse(
+        record.body
+      );
+      const order = messageBody.detail;
+
       await processOrder(order);
     } catch (error) {
-      console.error(error);
+      console.error(
+        JSON.stringify({
+          message: "Order processing failed",
+          error: serializeError(error),
+          messageId: record.messageId,
+        })
+      );
 
+      // Add failed message ID to batch failures
       batchItemFailures.push(record.messageId);
     }
   }
@@ -25,18 +33,37 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
 };
 
 async function processOrder(order: Order): Promise<void> {
-  for (const item of order.items) {
-    await processOrderItem(item);
+  console.log(
+    JSON.stringify({
+      message: "Processing order from SQS",
+      ...order,
+    })
+  );
+
+  try {
+    for (const item of order.items) {
+      await processOrderItem(item);
+    }
+  } catch (error) {
+    throw new Error(`Failed to process order ${order.orderId}`, {
+      cause: error,
+    });
   }
 }
 
 async function processOrderItem(item: OrderItem): Promise<void> {
-  const priceCheck = item.total / item.quantity;
-  // Price check logic
-  if (priceCheck !== item.price.amount) {
-    throw new Error(
-      `Price mismatch. Expected ${item.price.amount}, got ${priceCheck}`
-    );
+  try {
+    const priceCheck = item.total / item.quantity;
+    // Price check logic
+    if (priceCheck !== item.price.amount) {
+      throw new Error(
+        `Price mismatch. Expected ${item.price.amount}, got ${priceCheck}`
+      );
+    }
+    // very complex calculations
+  } catch (error) {
+    throw new Error(`Error processing item ${item.itemId}`, {
+      cause: error,
+    });
   }
-  // very complex calculations
 }
