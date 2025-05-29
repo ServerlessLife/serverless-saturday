@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-import * as cdk from 'aws-cdk-lib';
-import { ServerlessSaturdayStack } from '../lib/serverless-saturday-stack';
+import * as cdk from "aws-cdk-lib";
+import { ServerlessSaturdayStack } from "../lib/serverless-saturday-stack";
 
 const app = new cdk.App();
-new ServerlessSaturdayStack(app, 'ServerlessSaturdayStack', {
+new ServerlessSaturdayStack(app, "ServerlessSaturdayStack", {
+  stackName: "saturday",
+
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
