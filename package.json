@@ -1,0 +1,23 @@
+{
+  "name": "serverless-saturday",
+  "version": "0.1.0",
+  "bin": {
+    "serverless-saturday": "bin/serverless-saturday.js"
+  },
+  "scripts": {
+    "deploy": "cdk deploy --require-approval never",
+    "deploy-watch": "cdk deploy --require-approval never --watch"
+  },
+  "devDependencies": {
+    "@types/node": "22.7.9",
+    "aws-cdk": "2.1016.1",
+    "aws-cdk-lib": "2.198.0",
+    "constructs": "^10.4.2",
+    "lambda-live-debugger": "^1.8.2",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.8.3"
+  },
+  "workspaces": [
+    "services"
+  ]
+}
